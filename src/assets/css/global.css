@@ -3,6 +3,8 @@ html,body, #app{
     height: 100%;
     margin: 0;
     padding: 0;
+     /* 强制页面的宽度 ,不会出现变形问题*/
+    min-width: 1366px;
 }
 .el-breadcrumb {
   margin-bottom: 15px;

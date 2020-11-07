@@ -41,7 +41,7 @@
               :key="subItem.id"
             >
               <i class="el-icon-setting"></i>
-              <span slot="title">导航四</span>
+              <span slot="title">{{ subItem.authName }}</span>
             </el-menu-item>
           </el-submenu>
         </el-menu>
@@ -76,7 +76,9 @@ export default {
   created () {
     this.getMenuList()
     this.defaultPath = window.sessionStorage.getItem('defaultPath')
-    this.$router.push(this.defaultPath)
+
+    // this.$router.push(this.defaultPath)
+
     //  如果有激活地址，跳转到激活地址，没有则跳到欢迎页面
     // if (this.defaultPath) { || '/home'
     //   this.$router.push(this.defaultPath)

@@ -2,10 +2,8 @@
   <div>
     <!-- // 面包屑导航区 -->
     <el-breadcrumb separator="/">
-      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item><a href="/">活动管理</a></el-breadcrumb-item>
-      <el-breadcrumb-item>活动列表</el-breadcrumb-item>
-      <el-breadcrumb-item>活动详情</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 卡片视图区 -->
     <el-card>
@@ -76,6 +74,7 @@
                 type="warning"
                 icon="el-icon-setting"
                 size="small "
+                @click="showRolesDialog(scope.row)"
               ></el-button>
             </el-tooltip>
           </template>
@@ -162,6 +161,31 @@
         <el-button type="primary" @click="editUserInfo">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 分配角色对话框 -->
+    <el-dialog
+      title="分配角色"
+      :visible.sync="rolesDialogVisible"
+      width="50%"
+      @close="rolesClose"
+    >
+      <span>
+        <p>当前用户名：{{ userinfo.username }}</p>
+        <p>当前角色名：{{ userinfo.role_name }}</p>
+        <el-select v-model="selected" placeholder="选择角色">
+          <el-option
+            v-for="item in options"
+            :key="item.id"
+            :label="item.roleName"
+            :value="item.id"
+          >
+          </el-option>
+        </el-select>
+      </span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="rolesDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="rolesAdd">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -189,6 +213,10 @@ export default {
     }
 
     return {
+      //  用户当前信息
+      userinfo: {},
+      options: [],
+      selected: '',
       input3: '',
       queryInfo: {
         query: '',
@@ -202,6 +230,7 @@ export default {
       // 控制对话框的显示与隐藏
       addDialogVisible: false,
       editDialogVisible: false,
+      rolesDialogVisible: false,
       // 添加表单
       addForm: {
         username: '',
@@ -328,6 +357,25 @@ export default {
       if (res.meta.status !== 200) return this.$message.error('删除失败')
       this.$message.success('删除成功')
       this.getUserList()
+    },
+    // 打开分配角色权限按钮
+    async showRolesDialog (userinfo) {
+      this.userinfo = userinfo
+      const { data: res } = await this.$http.get('roles')
+      this.options = res.data
+      this.rolesDialogVisible = true
+    },
+    // 提交角色
+    async rolesAdd () {
+      const { data: res } = await this.$http.put(`users/${this.userinfo.id}/role`, { rid: this.selected })
+      if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
+      this.$message.success(res.meta.msg)
+      this.getUserList()
+      this.rolesDialogVisible = false
+    },
+    // 关闭窗口清空填写信息
+    rolesClose () {
+      this.selected = ''
     }
   }
 }
